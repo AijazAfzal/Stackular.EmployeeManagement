@@ -98,5 +98,16 @@ namespace Stackular.EmployeeManagement.Application.Services.Department
 
             await context.SaveChangesAsync(ct);
         }
+
+        public async Task DeleteDepartment(Guid id, CancellationToken ct)
+        {
+            var department = await context.Departments.FindAsync([id], ct);
+            if (department is null)
+            {
+                throw new NotFoundException($"Department with ID {id} not found.");
+            }
+            context.Departments.Remove(department);
+            await context.SaveChangesAsync(ct);
+        }
     }
 }

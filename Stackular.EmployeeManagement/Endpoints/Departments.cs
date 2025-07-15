@@ -18,7 +18,8 @@ namespace Stackular.EmployeeManagement.Api.Endpoints
                .MapGet(GetDepartment, "/{id}")
                .MapPost(AddDepartment, "/") 
                .MapPut(UpdateDepartment, "/{id}")
-               .MapPost(GetPagedDepartments, "/GetPagedDepartments");
+               .MapPost(GetPagedDepartments, "/GetPagedDepartments")
+               .MapDelete(DeleteDepartment, "/{id}");
         }
 
         public static async Task<Results<CreatedAtRoute<DepartmentDto>, BadRequest>> AddDepartment(IDepartmentService service, AddDepartmentCommand command, CancellationToken ct)
@@ -49,6 +50,12 @@ namespace Stackular.EmployeeManagement.Api.Endpoints
         {
             var result = await service.GetPagedDepartments(query, ct);
             return TypedResults.Ok(result);
+        }
+
+        public static async Task<Results<NoContent, NotFound>> DeleteDepartment(IDepartmentService service, Guid id, CancellationToken ct)
+        {
+                await service.DeleteDepartment(id, ct);
+                return TypedResults.NoContent();
         }
     }
 }
