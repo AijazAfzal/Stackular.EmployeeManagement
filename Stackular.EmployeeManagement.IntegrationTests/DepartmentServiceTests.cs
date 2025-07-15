@@ -85,6 +85,29 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         }
 
         [Fact]
+        public async Task DeleteDepartment_ShouldDeleteDepartment()
+        {
+            // Arrange
+            var created = await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "ToDelete" }, CancellationToken.None);
+
+            // Act
+            await _departmentService.DeleteDepartment(created.Id, CancellationToken.None);
+
+            // Assert
+            var dbItem = await _dbContext.Departments.FindAsync(created.Id);
+            dbItem.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task DeleteDepartment_ShouldThrow_WhenNotFound()
+        {
+            await Should.ThrowAsync<NotFoundException>(async () =>
+            {
+                await _departmentService.DeleteDepartment(Guid.NewGuid(), CancellationToken.None);
+            });
+        }
+
+        [Fact]
         public async Task SearchDepartmentsByName_ShouldReturnMatches()
         {
             await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "HR test" }, CancellationToken.None);

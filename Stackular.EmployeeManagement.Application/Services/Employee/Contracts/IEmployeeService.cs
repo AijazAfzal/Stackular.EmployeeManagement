@@ -14,5 +14,6 @@ namespace Stackular.EmployeeManagement.Application.Services.Employee.Contracts
 
         Task<IEnumerable<EmployeeDto>> GetEmployeesByDepartmentName(SearchEmployeesByDepartmentNameQuery query, CancellationToken ct);
         Task<PagedResponseDto<EmployeeDto>> GetPagedEmployees(EmployeePagedQuery query, CancellationToken ct);
+        Task DeleteEmployee(Guid id, CancellationToken ct);
     }
 }

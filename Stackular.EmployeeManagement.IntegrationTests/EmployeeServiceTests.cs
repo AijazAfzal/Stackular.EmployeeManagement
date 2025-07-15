@@ -116,6 +116,38 @@ namespace Stackular.EmployeeManagement.IntegrationTests
                 updated.EmailAddress.ShouldBe("after@example.com");
             }
 
+            [Fact]
+            public async Task DeleteEmployee_ShouldDeleteEmployee()
+            {
+                // Arrange
+                var department = await CreateTestDepartmentAsync();
+                var added = await _employeeService.AddEmployee(new AddEmployeeCommand
+                {
+                    Name = "ToDelete",
+                    EmailAddress = "delete@example.com",
+                    Dob = new DateTime(1991, 3, 3),
+                    DepartmentId = department.Id
+                }, CancellationToken.None);
+
+                // Act
+                await _employeeService.DeleteEmployee(added.Id, CancellationToken.None);
+
+                // Assert
+                await Should.ThrowAsync<Stackular.EmployeeManagement.Application.Exceptions.NotFoundException>(async () =>
+                {
+                    await _employeeService.GetEmployee(added.Id, CancellationToken.None);
+                });
+            }
+
+            [Fact]
+            public async Task DeleteEmployee_ShouldThrow_WhenNotFound()
+            {
+                await Should.ThrowAsync<Stackular.EmployeeManagement.Application.Exceptions.NotFoundException>(async () =>
+                {
+                    await _employeeService.DeleteEmployee(Guid.NewGuid(), CancellationToken.None);
+                });
+            }
+
             private async Task<DepartmentDto> CreateTestDepartmentAsync()
             {
                 var deptService = _scope.ServiceProvider.GetRequiredService<IDepartmentService>();

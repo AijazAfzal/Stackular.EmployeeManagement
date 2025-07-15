@@ -116,5 +116,16 @@ namespace Stackular.EmployeeManagement.Application.Services.Employee
 
             await context.SaveChangesAsync(ct);
         }
+
+        public async Task DeleteEmployee(Guid id, CancellationToken ct)
+        {
+            var employee = await context.Employees.FindAsync([id], ct);
+            if (employee is null)
+            {
+                throw new NotFoundException($"Employee with ID {id} not found.");
+            }
+            context.Employees.Remove(employee);
+            await context.SaveChangesAsync(ct);
+        }
     }
 }

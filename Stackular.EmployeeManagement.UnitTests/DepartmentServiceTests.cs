@@ -90,4 +90,37 @@ namespace Stackular.EmployeeManagement.UnitTests
             await Should.ThrowAsync<NotFoundException>(async () =>
                 await _service.GetDepartmentById(id, default));
         }
-}   }
+
+        [Fact]
+        public async Task DeleteDepartment_ShouldDeleteSuccessfully()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var department = new Department { Id = id, Name = "ToDelete" };
+            _context.Departments.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
+                .Returns(ValueTask.FromResult<Department?>(department));
+            _context.Departments.Remove(department);
+            _context.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
+
+            // Act
+            await _service.DeleteDepartment(id, default);
+
+            // Assert
+            _context.Received().Departments.Remove(department);
+            await _context.Received().SaveChangesAsync(Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task DeleteDepartment_InvalidId_ShouldThrowNotFound()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _context.Departments.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
+                .Returns(ValueTask.FromResult<Department>(null));
+
+            // Act & Assert
+            await Should.ThrowAsync<NotFoundException>(async () =>
+                await _service.DeleteDepartment(id, default));
+        }
+    }
+}

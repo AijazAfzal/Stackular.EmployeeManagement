@@ -19,7 +19,8 @@ namespace Stackular.EmployeeManagement.Api.Endpoints
                .MapGet(GetEmployee, "/{id}")
                .MapPost(AddEmployee, "/")
                .MapPut(UpdateEmployee, "/{id}")
-               .MapPost(GetPagedEmployees, "/GetPagedEmployees");
+               .MapPost(GetPagedEmployees, "/GetPagedEmployees")
+               .MapDelete(DeleteEmployee, "/{id}");
         }
 
         public static async Task<Results<CreatedAtRoute<EmployeeDto>, BadRequest>> AddEmployee(IEmployeeService service, AddEmployeeCommand command, CancellationToken ct)
@@ -56,6 +57,13 @@ namespace Stackular.EmployeeManagement.Api.Endpoints
         {
             var result = await service.GetPagedEmployees(query, ct);
             return TypedResults.Ok(result);
+        }
+
+        public static async Task<Results<NoContent, NotFound>> DeleteEmployee(IEmployeeService service, Guid id, CancellationToken ct)
+        {
+
+                await service.DeleteEmployee(id, ct);
+                return TypedResults.NoContent();    
         }
     }
 }
