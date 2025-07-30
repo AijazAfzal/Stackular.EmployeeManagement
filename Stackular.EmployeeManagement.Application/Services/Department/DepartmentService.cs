@@ -25,25 +25,25 @@ namespace Stackular.EmployeeManagement.Application.Services.Department
             await context.Departments.AddAsync(department, ct);
             await context.SaveChangesAsync(ct);
 
-            //This just for the demo purpose. In real world, we will use SendEmail(email) method
+
             emailService.SendEmail();
 
             return DepatmentMapper.ToDto(department);
         }
 
-        public async Task<DepartmentDto> GetDepartmentById(Guid id, CancellationToken ct)
+        public async Task<DepartmentDto> GetDepartmentById(GetDepartmentByIdQuery query, CancellationToken ct)
         {
-            var department = await context.Departments.FindAsync([id], ct);
+            var department = await context.Departments.FindAsync([query.Id], ct);
 
             if (department is null)
             {
-                throw new NotFoundException($"Department with ID {id} not found.");
+                throw new NotFoundException($"Department with ID {query.Id} not found.");
             }
 
             return DepatmentMapper.ToDto(department);
         }
 
-        public async Task<PagedResponseDto<DepartmentDto>> GetPagedDepartments(DepartmentPagedQuery query, CancellationToken ct)
+        public async Task<PagedResponseDto<DepartmentDto>> GetPagedDepartments(GetDepartmentPagedQuery query, CancellationToken ct)
         {
             modelValidationService.Validate(query);
 
@@ -87,24 +87,24 @@ namespace Stackular.EmployeeManagement.Application.Services.Department
             return departments.Select(DepatmentMapper.ToDto);
         }
 
-        public async Task UpdateDepartment(Guid id, UpdateDepartmentCommand request, CancellationToken ct)
+        public async Task UpdateDepartment(UpdateDepartmentCommand command, CancellationToken ct)
         {
-            modelValidationService.Validate(request);
+            modelValidationService.Validate(command);
 
-            var department = await context.Departments.FindAsync([id], ct)
-                           ?? throw new NotFoundException($"Department with ID {id} not found.");
+            var department = await context.Departments.FindAsync([command.Id], ct)
+                           ?? throw new NotFoundException($"Department with ID {command.Id} not found.");
 
-            department.Name = request.Name;
+            department.Name = command.Name;
 
             await context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteDepartment(Guid id, CancellationToken ct)
+        public async Task DeleteDepartment(DeleteDepartmentCommand command, CancellationToken ct)
         {
-            var department = await context.Departments.FindAsync([id], ct);
+            var department = await context.Departments.FindAsync([command.Id], ct);
             if (department is null)
             {
-                throw new NotFoundException($"Department with ID {id} not found.");
+                throw new NotFoundException($"Department with ID {command.Id} not found.");
             }
             context.Departments.Remove(department);
             await context.SaveChangesAsync(ct);

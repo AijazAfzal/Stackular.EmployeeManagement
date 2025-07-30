@@ -28,19 +28,18 @@ namespace Stackular.EmployeeManagement.Application.Services.Employee
             await context.Employees.AddAsync(employee, ct);
             await context.SaveChangesAsync(ct);
 
-            //This just for the demo purpose. In real world, we will use SendEmail(email) method
             emailService.SendEmail();
 
             return EmployeeMappper.ToDto(employee);
         }
 
-        public async Task<EmployeeDto> GetEmployee(Guid id, CancellationToken ct)
+        public async Task<EmployeeDto> GetEmployee(GetEmployeeByIdQuery query, CancellationToken ct)
         {
-            var employee = await context.Employees.FindAsync([id], ct);
+            var employee = await context.Employees.FindAsync([query.Id], ct);
 
             if (employee is null)
             {
-                throw new NotFoundException($"Employee with ID {id} not found.");
+                throw new NotFoundException($"Employee with ID {query.Id} not found.");
             }
 
             return EmployeeMappper.ToDto(employee);
@@ -58,7 +57,7 @@ namespace Stackular.EmployeeManagement.Application.Services.Employee
             return employees.Select(EmployeeMappper.ToDto);
         }
 
-        public async Task<PagedResponseDto<EmployeeDto>> GetPagedEmployees(EmployeePagedQuery query, CancellationToken ct)
+        public async Task<PagedResponseDto<EmployeeDto>> GetPagedEmployees(GetEmployeePagedQuery query, CancellationToken ct)
         {
             modelValidationService.Validate(query);
 
@@ -102,27 +101,27 @@ namespace Stackular.EmployeeManagement.Application.Services.Employee
             return employees.Select(EmployeeMappper.ToDto);
         }
 
-        public async Task UpdateEmployee(Guid id, UpdateEmployeeCommand request, CancellationToken ct)
+        public async Task UpdateEmployee(UpdateEmployeeCommand command, CancellationToken ct)
         {
-            modelValidationService.Validate(request);
+            modelValidationService.Validate(command);
 
-            var employee = await context.Employees.FindAsync([id], ct)
-                           ?? throw new NotFoundException($"Employee with ID {id} not found.");
+            var employee = await context.Employees.FindAsync([command.Id], ct)
+                           ?? throw new NotFoundException($"Employee with ID {command.Id} not found.");
 
-            employee.Name = request.Name;
-            employee.EmailAddress = request.EmailAddress;
-            employee.Dob = request.Dob;
-            employee.DepartmentId = request.DepartmentId;
+            employee.Name = command.Name;
+            employee.EmailAddress = command.EmailAddress;
+            employee.Dob = command.Dob;
+            employee.DepartmentId = command.DepartmentId;
 
             await context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteEmployee(Guid id, CancellationToken ct)
+        public async Task DeleteEmployee(DeleteEmployeeCommand command, CancellationToken ct)
         {
-            var employee = await context.Employees.FindAsync([id], ct);
+            var employee = await context.Employees.FindAsync([command.Id], ct);
             if (employee is null)
             {
-                throw new NotFoundException($"Employee with ID {id} not found.");
+                throw new NotFoundException($"Employee with ID {command.Id} not found.");
             }
             context.Employees.Remove(employee);
             await context.SaveChangesAsync(ct);

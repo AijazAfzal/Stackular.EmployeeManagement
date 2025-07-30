@@ -7,13 +7,13 @@ namespace Stackular.EmployeeManagement.Application.Services.Employee.Contracts
 {
     public interface IEmployeeService
     {
-        Task<EmployeeDto> AddEmployee(AddEmployeeCommand request, CancellationToken ct);
-        Task UpdateEmployee(Guid id, UpdateEmployeeCommand request, CancellationToken ct);
-        Task<EmployeeDto> GetEmployee(Guid id, CancellationToken ct);
+        Task<EmployeeDto> AddEmployee(AddEmployeeCommand command, CancellationToken ct);
+        Task UpdateEmployee(UpdateEmployeeCommand command, CancellationToken ct);
+        Task<EmployeeDto> GetEmployee(GetEmployeeByIdQuery query, CancellationToken ct);
         Task<IEnumerable<EmployeeDto>> SearchEmployeesByName(SearchEmployeeQuery query, CancellationToken ct);
 
         Task<IEnumerable<EmployeeDto>> GetEmployeesByDepartmentName(SearchEmployeesByDepartmentNameQuery query, CancellationToken ct);
-        Task<PagedResponseDto<EmployeeDto>> GetPagedEmployees(EmployeePagedQuery query, CancellationToken ct);
-        Task DeleteEmployee(Guid id, CancellationToken ct);
+        Task<PagedResponseDto<EmployeeDto>> GetPagedEmployees(GetEmployeePagedQuery query, CancellationToken ct);
+        Task DeleteEmployee(DeleteEmployeeCommand command, CancellationToken ct);
     }
 }

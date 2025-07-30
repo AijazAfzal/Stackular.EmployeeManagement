@@ -52,9 +52,12 @@ namespace Stackular.EmployeeManagement.IntegrationTests
                     Dob = new DateTime(1985, 5, 5),
                     DepartmentId = department.Id
                 }, CancellationToken.None);
-
-                // Act
-                var fetched = await _employeeService.GetEmployee(added.Id, CancellationToken.None);
+                var query = new GetEmployeeByIdQuery
+                {
+                    Id = added.Id
+                };
+            // Act
+            var fetched = await _employeeService.GetEmployee(query, CancellationToken.None);
 
                 // Assert
                 fetched.ShouldNotBeNull();
@@ -99,19 +102,23 @@ namespace Stackular.EmployeeManagement.IntegrationTests
                     DepartmentId = department.Id
                 }, CancellationToken.None);
 
-                var update = new UpdateEmployeeCommand
+                var updatecommand = new UpdateEmployeeCommand
                 {
+                    Id = added.Id,
                     Name = "After Update",
                     EmailAddress = "after@example.com",
                     Dob = new DateTime(1990, 2, 2),
                     DepartmentId = department.Id
                 };
-
-                // Act
-                await _employeeService.UpdateEmployee(added.Id, update, CancellationToken.None);
+                var query = new GetEmployeeByIdQuery
+                {
+                    Id = added.Id
+                };
+            // Act
+            await _employeeService.UpdateEmployee(updatecommand, CancellationToken.None);
 
                 // Assert
-                var updated = await _employeeService.GetEmployee(added.Id, CancellationToken.None);
+                var updated = await _employeeService.GetEmployee(query, CancellationToken.None);
                 updated.Name.ShouldBe("After Update");
                 updated.EmailAddress.ShouldBe("after@example.com");
             }
@@ -128,23 +135,35 @@ namespace Stackular.EmployeeManagement.IntegrationTests
                     Dob = new DateTime(1991, 3, 3),
                     DepartmentId = department.Id
                 }, CancellationToken.None);
+                var deleteCommand = new DeleteEmployeeCommand
+                {
+                    Id = added.Id
+                };
+                var query = new GetEmployeeByIdQuery
+                {
+                    Id = added.Id
+                };
 
-                // Act
-                await _employeeService.DeleteEmployee(added.Id, CancellationToken.None);
+            // Act
+            await _employeeService.DeleteEmployee(deleteCommand, CancellationToken.None);
 
                 // Assert
                 await Should.ThrowAsync<Stackular.EmployeeManagement.Application.Exceptions.NotFoundException>(async () =>
                 {
-                    await _employeeService.GetEmployee(added.Id, CancellationToken.None);
+                    await _employeeService.GetEmployee(query, CancellationToken.None);
                 });
             }
 
             [Fact]
             public async Task DeleteEmployee_ShouldThrow_WhenNotFound()
             {
-                await Should.ThrowAsync<Stackular.EmployeeManagement.Application.Exceptions.NotFoundException>(async () =>
+                var command = new DeleteEmployeeCommand
                 {
-                    await _employeeService.DeleteEmployee(Guid.NewGuid(), CancellationToken.None);
+                    Id = Guid.NewGuid() // Use a random ID that does not exist
+                };
+            await Should.ThrowAsync<Stackular.EmployeeManagement.Application.Exceptions.NotFoundException>(async () =>
+                {
+                    await _employeeService.DeleteEmployee(command, CancellationToken.None);
                 });
             }
 

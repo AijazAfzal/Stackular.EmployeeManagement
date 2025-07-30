@@ -8,6 +8,7 @@ using Stackular.EmployeeManagement.Application.Services.Common;
 using Stackular.EmployeeManagement.Application.Services.Common.Contracts;
 using Stackular.EmployeeManagement.Application.Services.Department;
 using Stackular.EmployeeManagement.Application.Services.Department.Commands;
+using Stackular.EmployeeManagement.Application.Services.Department.Queries;
 using Stackular.EmployeeManagement.Application.Services.Department.Validators;
 using Stackular.EmployeeManagement.Domain.Entities;
 
@@ -68,13 +69,13 @@ namespace Stackular.EmployeeManagement.UnitTests
         [Fact]
         public async Task GetDepartmentById_ShouldReturnCorrectDepartment()
         {
-            var id = Guid.NewGuid();
-            var department = new Domain.Entities.Department { Id = id, Name = "Finance" };
+            var query = new GetDepartmentByIdQuery { Id = Guid.NewGuid() };
+            var department = new Domain.Entities.Department { Id = query.Id, Name = "Finance" };
             _context.Departments.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Domain.Entities.Department?>(department));
 
 
-            var result = await _service.GetDepartmentById(id, default);
+            var result = await _service.GetDepartmentById(query, default);
 
             result.ShouldNotBeNull();
             result.Name.ShouldBe("Finance");
@@ -83,27 +84,27 @@ namespace Stackular.EmployeeManagement.UnitTests
         [Fact]
         public async Task GetDepartmentById_InvalidId_ShouldThrowNotFound()
         {
-            var id = Guid.NewGuid();
+            var query = new GetDepartmentByIdQuery { Id = Guid.NewGuid() };
             _context.Departments.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Domain.Entities.Department>(null));
 
             await Should.ThrowAsync<NotFoundException>(async () =>
-                await _service.GetDepartmentById(id, default));
+                await _service.GetDepartmentById(query, default));
         }
 
         [Fact]
         public async Task DeleteDepartment_ShouldDeleteSuccessfully()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var department = new Department { Id = id, Name = "ToDelete" };
+            var query = new DeleteDepartmentCommand { Id = Guid.NewGuid() };
+            var department = new Department { Id = query.Id, Name = "ToDelete" };
             _context.Departments.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Department?>(department));
             _context.Departments.Remove(department);
             _context.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
             // Act
-            await _service.DeleteDepartment(id, default);
+            await _service.DeleteDepartment(query, default);
 
             // Assert
             _context.Received().Departments.Remove(department);
@@ -114,13 +115,13 @@ namespace Stackular.EmployeeManagement.UnitTests
         public async Task DeleteDepartment_InvalidId_ShouldThrowNotFound()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var query = new DeleteDepartmentCommand { Id = Guid.NewGuid() };
             _context.Departments.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Department>(null));
 
             // Act & Assert
             await Should.ThrowAsync<NotFoundException>(async () =>
-                await _service.DeleteDepartment(id, default));
+                await _service.DeleteDepartment(query, default));
         }
     }
 }

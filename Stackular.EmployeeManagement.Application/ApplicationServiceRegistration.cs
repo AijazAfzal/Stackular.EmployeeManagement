@@ -17,6 +17,12 @@ namespace Stackular.EmployeeManagement.Application
             services.TryAddTransient<IEmployeeService, EmployeeService>();
             services.TryAddTransient<ISortingService,SortingService>();
             services.TryAddTransient<IModelValidationService, ModelValidationService>();
+            services.AddScoped<IRequestDispatcher, RequestDispatcher>();
+            services.Scan(scan => scan
+                     .FromAssembliesOf(typeof(AddDepartmentCommandHandler))
+                     .AddClasses(classes => classes.AssignableTo(typeof(IRequestHandler<,>)))
+                     .AsImplementedInterfaces()
+                     .WithScopedLifetime());
             services.AddValidatorsFromAssembly(typeof(ApplicationServiceRegistration).Assembly);
             return services;
         }

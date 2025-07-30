@@ -2,7 +2,7 @@
 
 namespace Stackular.EmployeeManagement.Application.Services.Employee.Validators
 {
-    public class EmployeePagedQueryValidator : AbstractValidator<EmployeePagedQuery>
+    public class EmployeePagedQueryValidator : AbstractValidator<GetEmployeePagedQuery>
     {
         private readonly string[] _allowedSortFields = { "Name" };
         public EmployeePagedQueryValidator()

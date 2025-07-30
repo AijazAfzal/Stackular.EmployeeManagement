@@ -38,9 +38,10 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         {
             // Arrange
             var created = await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "Finance" }, CancellationToken.None);
+            var query = new GetDepartmentByIdQuery { Id = created.Id };
 
             // Act
-            var result = await _departmentService.GetDepartmentById(created.Id, CancellationToken.None);
+            var result = await _departmentService.GetDepartmentById(query, CancellationToken.None);
 
             // Assert
             result.ShouldNotBeNull();
@@ -51,9 +52,12 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         [Fact]
         public async Task GetDepartmentById_ShouldThrow_WhenDepartmentNotFound()
         {
+            // Arrange
+            var query = new GetDepartmentByIdQuery { Id = Guid.NewGuid() };
+
             await Should.ThrowAsync<NotFoundException>(async () =>
             {
-                await _departmentService.GetDepartmentById(Guid.NewGuid(), CancellationToken.None);
+                await _departmentService.GetDepartmentById(query, CancellationToken.None);
             });
         }
 
@@ -62,10 +66,15 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         {
             // Arrange
             var created = await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "Operations" }, CancellationToken.None);
-            var updateCommand = new UpdateDepartmentCommand { Name = "Operations Updated" };
+            var updateCommand = new UpdateDepartmentCommand 
+            {
+
+                Id = created.Id,
+                Name = "Operations Updated",
+            };
 
             // Act
-            await _departmentService.UpdateDepartment(created.Id, updateCommand, CancellationToken.None);
+            await _departmentService.UpdateDepartment(updateCommand, CancellationToken.None);
 
             // Assert
             var updated = await _dbContext.Departments.FindAsync(created.Id);
@@ -80,7 +89,7 @@ namespace Stackular.EmployeeManagement.IntegrationTests
 
             await Should.ThrowAsync<NotFoundException>(async () =>
             {
-                await _departmentService.UpdateDepartment(Guid.NewGuid(), updateCommand, CancellationToken.None);
+                await _departmentService.UpdateDepartment(updateCommand, CancellationToken.None);
             });
         }
 
@@ -89,9 +98,10 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         {
             // Arrange
             var created = await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "ToDelete" }, CancellationToken.None);
+            var deleteCommand = new DeleteDepartmentCommand { Id = created.Id };
 
             // Act
-            await _departmentService.DeleteDepartment(created.Id, CancellationToken.None);
+            await _departmentService.DeleteDepartment(deleteCommand, CancellationToken.None);
 
             // Assert
             var dbItem = await _dbContext.Departments.FindAsync(created.Id);
@@ -101,9 +111,12 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         [Fact]
         public async Task DeleteDepartment_ShouldThrow_WhenNotFound()
         {
+            // Arrange
+            var deleteCommand = new DeleteDepartmentCommand { Id = Guid.NewGuid() };
+
             await Should.ThrowAsync<NotFoundException>(async () =>
             {
-                await _departmentService.DeleteDepartment(Guid.NewGuid(), CancellationToken.None);
+                await _departmentService.DeleteDepartment(deleteCommand, CancellationToken.None);
             });
         }
 
@@ -131,7 +144,7 @@ namespace Stackular.EmployeeManagement.IntegrationTests
             await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "D2" }, CancellationToken.None);
             await _departmentService.AddDepartment(new AddDepartmentCommand { Name = "D3" }, CancellationToken.None);
 
-            var pagedResult = await _departmentService.GetPagedDepartments(new DepartmentPagedQuery
+            var pagedResult = await _departmentService.GetPagedDepartments(new GetDepartmentPagedQuery
             {
                 PageNumber = 1,
                 PageSize = 2,
@@ -158,7 +171,7 @@ namespace Stackular.EmployeeManagement.IntegrationTests
         [Fact]
         public async Task DepartmentPagedQuery_ShouldFailValidation_WhenPageSizeInvalid()
         {
-            var query = new DepartmentPagedQuery
+            var query = new GetDepartmentPagedQuery
             {
                 PageNumber = 1,
                 PageSize = 0

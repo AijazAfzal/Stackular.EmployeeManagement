@@ -2,10 +2,10 @@
 
 namespace Stackular.EmployeeManagement.Application.Services.Department.Validators
 {
-    public class DepartmentPagedQueryValidator : AbstractValidator<DepartmentPagedQuery>
+    public class GetDepartmentPagedQueryValidator : AbstractValidator<GetDepartmentPagedQuery>
     {
         private readonly string[] _allowedSortFields = { "Name" };
-        public DepartmentPagedQueryValidator()
+        public GetDepartmentPagedQueryValidator()
         {
             {
                 RuleFor(x => x.PageNumber)

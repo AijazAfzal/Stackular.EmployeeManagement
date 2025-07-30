@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Stackular.EmployeeManagement.Api.Extensions;
 using Stackular.EmployeeManagement.Api.Infrastucture;
+using Stackular.EmployeeManagement.Application.Services.Common;
+using Stackular.EmployeeManagement.Application.Services.Common.Contracts;
 using Stackular.EmployeeManagement.Application.Services.Common.Dto;
 using Stackular.EmployeeManagement.Application.Services.Department.Commands;
-using Stackular.EmployeeManagement.Application.Services.Department.Contracts;
 using Stackular.EmployeeManagement.Application.Services.Department.Dto;
 using Stackular.EmployeeManagement.Application.Services.Department.Queries;
 
@@ -15,47 +17,47 @@ namespace Stackular.EmployeeManagement.Api.Endpoints
         {
             app.MapGroup(this)
                .MapPost(SearchDepartments, "/SearchDepartments") 
-               .MapGet(GetDepartment, "/{id}")
-               .MapPost(AddDepartment, "/") 
-               .MapPut(UpdateDepartment, "/{id}")
+               .MapGet(GetDepartment, "/{Id}")
+               .MapPost(AddDepartment, "/AddDepartment") 
+               .MapPut(UpdateDepartment, "/UpdateDepartment")
                .MapPost(GetPagedDepartments, "/GetPagedDepartments")
-               .MapDelete(DeleteDepartment, "/{id}");
+               .MapDelete(DeleteDepartment, "/DeleteDepartment");
         }
 
-        public static async Task<Results<CreatedAtRoute<DepartmentDto>, BadRequest>> AddDepartment(IDepartmentService service, AddDepartmentCommand command, CancellationToken ct)
+        public static async Task<Results<CreatedAtRoute<DepartmentDto>, BadRequest>> AddDepartment(IRequestDispatcher dispatcher,[FromBody] AddDepartmentCommand command,CancellationToken ct)
         {
-            var result = await service.AddDepartment(command, ct);
+            var result = await dispatcher.DispatchAsync<AddDepartmentCommand, DepartmentDto>(command, ct);
             return TypedResults.CreatedAtRoute(routeName: nameof(GetDepartment), routeValues: new { id = result.Id }, value: result);
         }
 
-        public static async Task<NoContent> UpdateDepartment(IDepartmentService service, Guid id, UpdateDepartmentCommand command, CancellationToken ct)
+        public static async Task<NoContent> UpdateDepartment(IRequestDispatcher dispatcher,[FromBody] UpdateDepartmentCommand command, CancellationToken ct)
         {
-            await service.UpdateDepartment(id, command, ct);
+            await dispatcher.DispatchAsync<UpdateDepartmentCommand,Unit>(command, ct);
             return TypedResults.NoContent();
         }
 
-        public static async Task<Results<Ok<IEnumerable<DepartmentDto>>, BadRequest>> SearchDepartments(IDepartmentService service, SearchDepartmentsQuery query, CancellationToken ct)
+        public static async Task<Results<Ok<IEnumerable<DepartmentDto>>, BadRequest>> SearchDepartments(IRequestDispatcher dispatcher, [FromBody] SearchDepartmentsQuery query, CancellationToken ct)
         {
-            var results = await service.SearchDepartmentsByName(query, ct);
-            return TypedResults.Ok(results);
-        }
-
-        public static async Task<Results<Ok<DepartmentDto>, NotFound>> GetDepartment(IDepartmentService service, Guid id, CancellationToken ct)
-        {
-            var result = await service.GetDepartmentById(id, ct);
+            var result = await dispatcher.DispatchAsync<SearchDepartmentsQuery,IEnumerable<DepartmentDto>>(query, ct);
             return TypedResults.Ok(result);
         }
 
-        public static async Task<Results<Ok<PagedResponseDto<DepartmentDto>>, BadRequest>> GetPagedDepartments(IDepartmentService service, DepartmentPagedQuery query, CancellationToken ct)
+        public static async Task<Results<Ok<DepartmentDto>, NotFound>> GetDepartment(IRequestDispatcher dispatcher,[AsParameters] GetDepartmentByIdQuery query, CancellationToken ct)
         {
-            var result = await service.GetPagedDepartments(query, ct);
+            var result = await dispatcher.DispatchAsync<GetDepartmentByIdQuery,DepartmentDto>(query, ct);
             return TypedResults.Ok(result);
         }
 
-        public static async Task<Results<NoContent, NotFound>> DeleteDepartment(IDepartmentService service, Guid id, CancellationToken ct)
+        public static async Task<Results<Ok<PagedResponseDto<DepartmentDto>>, BadRequest>> GetPagedDepartments(IRequestDispatcher dispatcher, [FromBody] GetDepartmentPagedQuery query, CancellationToken ct)
         {
-                await service.DeleteDepartment(id, ct);
-                return TypedResults.NoContent();
+            var result = await dispatcher.DispatchAsync<GetDepartmentPagedQuery,PagedResponseDto<DepartmentDto>>(query, ct);
+            return TypedResults.Ok(result);
+        }
+
+        public static async Task<Results<NoContent, NotFound>> DeleteDepartment(IRequestDispatcher dispatcher,[FromBody] DeleteDepartmentCommand command, CancellationToken ct)
+        {
+             await dispatcher.DispatchAsync<DeleteDepartmentCommand,Unit>(command, ct);
+             return TypedResults.NoContent();
         }
     }
 }

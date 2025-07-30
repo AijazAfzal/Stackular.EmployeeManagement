@@ -1,8 +1,7 @@
 ﻿namespace Stackular.EmployeeManagement.Application.Services.Department.Commands
 {
-    public record UpdateDepartmentCommand
+    public record DeleteDepartmentCommand
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
     }
 }

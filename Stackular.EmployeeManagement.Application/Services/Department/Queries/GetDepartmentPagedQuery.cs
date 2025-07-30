@@ -2,7 +2,7 @@
 
 namespace Stackular.EmployeeManagement.Application.Services.Department.Queries
 {
-    public class DepartmentPagedQuery : PagedBaseQuery
+    public class GetDepartmentPagedQuery : PagedBaseQuery
     {
         public string? SearchTerm { get; set; }
     }

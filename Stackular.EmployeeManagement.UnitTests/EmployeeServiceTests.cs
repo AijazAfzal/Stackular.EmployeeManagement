@@ -7,6 +7,7 @@ using Stackular.EmployeeManagement.Application.Services.Common;
 using Stackular.EmployeeManagement.Application.Services.Common.Contracts;
 using Stackular.EmployeeManagement.Application.Services.Employee;
 using Stackular.EmployeeManagement.Application.Services.Employee.Commands;
+using Stackular.EmployeeManagement.Application.Services.Employee.Queries;
 using Stackular.EmployeeManagement.Application.Services.Employee.Validators;
 using Stackular.EmployeeManagement.Domain.Entities;
 
@@ -79,12 +80,12 @@ namespace Stackular.EmployeeManagement.UnitTests
         [Fact]
         public async Task GetEmployee_ShouldReturnCorrectEmployee()
         {
-            var id = Guid.NewGuid();
-            var employee = new Domain.Entities.Employee { Id = id, Name = "Jane Doe" };
+            var query = new GetEmployeeByIdQuery { Id = Guid.NewGuid() };
+            var employee = new Domain.Entities.Employee { Id = query.Id, Name = "Jane Doe" };
             _context.Employees.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Domain.Entities.Employee?>(employee));
 
-            var result = await _service.GetEmployee(id, default);
+            var result = await _service.GetEmployee(query, default);
 
             result.ShouldNotBeNull();
             result.Name.ShouldBe("Jane Doe");
@@ -93,27 +94,27 @@ namespace Stackular.EmployeeManagement.UnitTests
         [Fact]
         public async Task GetEmployee_InvalidId_ShouldThrowNotFound()
         {
-            var id = Guid.NewGuid();
+            var query = new GetEmployeeByIdQuery { Id = Guid.NewGuid() };
             _context.Employees.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Domain.Entities.Employee?>(null));
 
             await Should.ThrowAsync<NotFoundException>(async () =>
-                await _service.GetEmployee(id, default));
+                await _service.GetEmployee(query, default));
         }
 
         [Fact]
         public async Task DeleteEmployee_ShouldDeleteSuccessfully()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var employee = new Employee { Id = id, Name = "ToDelete" };
+            var command = new DeleteEmployeeCommand { Id = Guid.NewGuid() };
+            var employee = new Employee { Id = command.Id, Name = "ToDelete" };
             _context.Employees.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Employee?>(employee));
             _context.Employees.Remove(employee);
             _context.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
 
             // Act
-            await _service.DeleteEmployee(id, default);
+            await _service.DeleteEmployee(command, default);
 
             // Assert
             _context.Received().Employees.Remove(employee);
@@ -124,13 +125,13 @@ namespace Stackular.EmployeeManagement.UnitTests
         public async Task DeleteEmployee_InvalidId_ShouldThrowNotFound()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var query = new DeleteEmployeeCommand { Id = Guid.NewGuid() };
             _context.Employees.FindAsync(Arg.Any<object[]>(), Arg.Any<CancellationToken>())
                 .Returns(ValueTask.FromResult<Employee?>(null));
 
             // Act & Assert
             await Should.ThrowAsync<NotFoundException>(async () =>
-                await _service.DeleteEmployee(id, default));
+                await _service.DeleteEmployee(query, default));
         }
     }
 }
