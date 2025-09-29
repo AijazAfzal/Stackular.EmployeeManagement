@@ -20,14 +20,14 @@ This is a .NET solution following Clean Architecture principles, implementing th
 
 The solution is organized into the following layers:
 
-### 1. Domain Layer (`Stackular.EmployeeManagement.Domain`)
+### 1. Domain Layer (`EmployeeManagement.Domain`)
 - Contains enterprise business rules and entities
 - No dependencies on other layers
 - Contains:
   - Entities: Core business objects
   - Common: Shared base classes and interfaces
 
-### 2. Application Layer (`Stackular.EmployeeManagement.Application`)
+### 2. Application Layer (`EmployeeManagement.Application`)
 - Contains application business rules
 - Implements use cases
 - Contains:
@@ -36,7 +36,7 @@ The solution is organized into the following layers:
   - Services: Application services and business logic
   - Exceptions: Custom application exceptions
 
-### 3. Infrastructure Layer (`Stackular.EmployeeManagement.Infrastructure`)
+### 3. Infrastructure Layer (`EmployeeManagement.Infrastructure`)
 - Implements interfaces defined in the Application layer
 - Contains external concerns like:
   - Email services
@@ -44,14 +44,14 @@ The solution is organized into the following layers:
   - External API integrations
 - No direct dependencies on the Persistence layer
 
-### 4. Persistence Layer (`Stackular.EmployeeManagement.Persistence`)
+### 4. Persistence Layer (`EmployeeManagement.Persistence`)
 - Implements data access concerns
 - Contains:
   - DbContext configurations
   - Entity configurations
   - Migrations
 
-### 5. API Layer (`Stackular.EmployeeManagement.Api`)
+### 5. API Layer (`EmployeeManagement.Api`)
 - Entry point of the application
 - Handles HTTP requests
 - Contains:
@@ -130,9 +130,9 @@ dotnet format
 ## Testing
 
 The solution includes multiple test projects:
-- `Stackular.EmployeeManagement.UnitTests`: Unit tests for business logic
-- `Stackular.EmployeeManagement.ArchitectureTests`: Tests for whether the architecture adheres to Clean Architecture principles
-- `Stackular.EmployeeManagement.IntegrationTests`: Integration tests for component interactions and database operations
+- `EmployeeManagement.UnitTests`: Unit tests for business logic
+- `EmployeeManagement.ArchitectureTests`: Tests for whether the architecture adheres to Clean Architecture principles
+- `EmployeeManagement.IntegrationTests`: Integration tests for component interactions and database operations
 
 ### Running Tests
 Before raising a PR, ensure all tests pass successfully. The following test suites must be executed and pass:
@@ -203,8 +203,6 @@ git config user.email "your.email@example.com"
 # Verify your settings
 git config --list
 ```
-
-Note: If you work with multiple clients or projects using different email addresses, it's recommended to set Git configuration at the repository level (as shown above) rather than globally. This prevents accidentally committing with the wrong email address.
 
 ### Common Git Commands
 ```bash
