@@ -12,7 +12,7 @@ The project can be used as a starting point for new API development, showcasing:
 - Centralized package and build management
 - Modern .NET development practices
 
-# Stackular.EmployeeManagement - Clean Architecture Solution
+# EmployeeManagement - Clean Architecture Solution
 
 This is a .NET solution following Clean Architecture principles, implementing the Employee Management APIs with proper separation of concerns and best practices.
 
